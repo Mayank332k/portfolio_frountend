@@ -32,6 +32,8 @@ import {
   Moon
 } from 'lucide-react';
 import './index.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import guyImg from './guy.png';
 import ProjectCard from './components/ProjectCard';
 
@@ -216,6 +218,13 @@ function App() {
         body: JSON.stringify({ message: textToSend })
       });
 
+      if (!response.ok) {
+        const errorMsg = response.status === 500 
+          ? "I think system API limit hit's. We r using free api's for now. Kindly try after a while." 
+          : "Oops, I'm having trouble connecting to my brain right now.";
+        throw new Error(errorMsg);
+      }
+
       if (!response.body) throw new Error('ReadableStream not yet supported in this browser.');
 
       const reader = response.body.getReader();
@@ -278,7 +287,8 @@ function App() {
         const lastMsg = { ...nextMessages[lastIndex] };
         
         if (lastMsg.role === 'ai' && !lastMsg.text) {
-          lastMsg.text = "Oops, I'm having trouble connecting to my brain right now.";
+          lastMsg.role = 'system';
+          lastMsg.text = error.message.replace(/Error: /g, '') || "Oops, I'm having trouble connecting to my brain right now.";
           nextMessages[lastIndex] = lastMsg;
         }
         return nextMessages;
@@ -454,15 +464,28 @@ function App() {
               
               <div className="chat-messages" ref={chatMessagesRef}>
                 {messages.map((msg, index) => (
-                  <div key={index} className={`message ${msg.role}`}>
+                  <div 
+                    key={index} 
+                    className={`message ${msg.role} 
+                      ${msg.role === 'ai' && msg.text === "" && isStreaming && index === messages.length - 1 ? 'is-thinking' : ''}
+                      ${msg.role === 'ai' && msg.text !== "" && isStreaming && index === messages.length - 1 ? 'is-streaming' : ''}
+                    `}
+                  >
                     {msg.role === 'ai' && msg.text === "" ? (
-                      <div className="typing-indicator">
+                      <div className="dots-wave">
                         <span></span>
                         <span></span>
                         <span></span>
                       </div>
                     ) : (
-                      msg.text
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
                     )}
                   </div>
                 ))}
