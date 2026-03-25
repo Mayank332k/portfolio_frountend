@@ -263,9 +263,10 @@ body {
     border: none;
     box-shadow: none;
     display: flex;
+    display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 1rem 1.5rem;
+    padding: 1rem 0.6rem;
   }
 
   /* Remove top frosted gradient overlay */
@@ -277,8 +278,8 @@ body {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 0.75rem;
-    width: auto; /* Shrink to wrap pills */
+    gap: 0.5rem;
+    width: 100%;
     padding: 0;
   }
 
@@ -299,7 +300,8 @@ body {
 
   .nav-chat-pill {
     display: flex !important; /* Show on mobile */
-    flex: 0 0 auto;
+    flex: 1;
+    min-width: 0;
     margin-left: 0;
   }
 
@@ -309,7 +311,7 @@ body {
 
   .textarea-glow-container {
     height: 44px;
-    width: 200px;
+    width: 100%;
     padding: 0 0.8rem;
   }
 
@@ -1143,6 +1145,49 @@ body {
   .mobile-dropdown-menu a:hover::after {
     opacity: 1;
     transform: translateX(0);
+  }
+
+  .mobile-dropdown-theme-section {
+    margin-top: 0.5rem;
+    padding: 1.25rem 1.5rem 0.5rem;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .mobile-dropdown-theme-section span {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .btn-mobile-theme-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1rem;
+    border-radius: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .btn-mobile-theme-toggle:active {
+    background: var(--border-light);
+    transform: scale(0.98);
+  }
+
+  .btn-mobile-theme-toggle svg {
+    color: var(--primary);
   }
 
   .app-container {

@@ -101,6 +101,20 @@ function App() {
   
   const projects = [
     {
+      title: "Pulse Chat — Premium Real-time Experience",
+      description: "A high-performance, real-time messaging application designed with a 'Quiet Luxury' aesthetic. Powered by Socket.io and custom Zustand persistence.",
+      features: ["Sub-millisecond delivery latency", "Offline-first persistence", "Framer Motion transitions", "Sarvam AI & OpenRouter integration (soon)"],
+      techStack: [
+        { name: "React 19", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+        { name: "Socket.io", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/socketio/socketio-original.svg" },
+        { name: "Tailwind CSS", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" },
+        { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" }
+      ],
+      liveUrl: "https://chat-app-frontend-dqrk.vercel.app/",
+      githubUrl: "https://github.com/Mayank332k/chat-app-frontend.git",
+      featured: true
+    },
+    {
       title: "SaidIt - Reddit Clone",
       description: "A minimal Reddit-style discussion platform with secure session management and a real-time public feed.",
       features: ["Session-based Authentication", "Public Feed & Likes", "MVC Architecture", "Protected Routes"],
@@ -125,18 +139,6 @@ function App() {
       ],
       liveUrl: "https://mayank332k.github.io/TaskFlow/",
       githubUrl: "https://github.com/Mayank332k/TaskFlow"
-    },
-    {
-      title: "Admin Dashboard",
-      description: "A professional administrative interface with dynamic navigation and user management logic.",
-      features: ["State-based Authentication", "User Management Interface", "Lifted State Logic", "Sidebar Navigation"],
-      techStack: [
-        { name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
-        { name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
-        { name: "Vite", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" }
-      ],
-      liveUrl: "https://mayank332k.github.io/Admine-Dashboard/",
-      githubUrl: "https://github.com/Mayank332k/Admine-Dashboard"
     },
     {
       title: "Full-Stack Task Manager",
@@ -314,10 +316,12 @@ function App() {
               <a href="#contact">contact</a>
             </div>
             
-            {/* Theme Toggle Button */}
-            <button className="btn-theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
+            {/* Theme Toggle Button - Tablet & Desktop */}
+            <div className="desktop-only">
+              <button className="btn-theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
+                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+              </button>
+            </div>
 
             {/* Mobile menu Toggle */}
             <button 
@@ -377,6 +381,18 @@ function App() {
               <a href="#education" onClick={() => setIsMobileMenuOpen(false)}>education</a>
               <a href="#tools" onClick={() => setIsMobileMenuOpen(false)}>tools</a>
               <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>contact</a>
+              
+              {/* Mobile Theme Toggle Section */}
+              <div className="mobile-dropdown-theme-section">
+                <span>Theme</span>
+                <button className="btn-mobile-theme-toggle" onClick={toggleTheme}>
+                  {theme === 'light' ? (
+                    <><Moon size={18} /><span>Dark Mode</span></>
+                  ) : (
+                    <><Sun size={18} /><span>Light Mode</span></>
+                  )}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -400,7 +416,7 @@ function App() {
 
           <div className="hero-actions">
             <a 
-              href="/resume.pdf" 
+              href="/latest_Resume.pdf" 
               download="Mayank_Singh_Resume.pdf"
               className="btn-outline"
             >

@@ -1,9 +1,9 @@
 import React from 'react';
 import { ExternalLink, Github } from 'lucide-react';
 
-const ProjectCard = ({ title, description, features = [], techStack = [], liveUrl, githubUrl }) => {
+const ProjectCard = ({ title, description, features = [], techStack = [], liveUrl, githubUrl, featured }) => {
   return (
-    <div className="project-card">
+    <div className={`project-card ${featured ? 'featured' : ''}`}>
       <div className="project-card-header">
         <h3 className="project-title-text">{title}</h3>
       </div>
