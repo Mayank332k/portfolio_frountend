@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Lenis from 'lenis';
 import { 
   Instagram, 
   Send, 
   Globe,
-  Twitter,
   MessageSquare,
   X,
   ArrowLeft,
@@ -12,29 +12,19 @@ import {
   Download,
   Github,
   Linkedin,
-  Code2,
-  Coffee,
-  Layout,
-  Palette,
-  Terminal,
-  Server,
-  Zap,
-  Database,
-  Link,
-  GitBranch,
-  Cloud,
-  Sparkles,
-  Cpu,
-  Brain,
-  Monitor,
   Mail,
   Sun,
-  Moon
+  Moon,
+  Sparkles,
+  Zap,
+  Cpu,
+  Circle,
+  Triangle,
+  Brain
 } from 'lucide-react';
 import './index.css';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import guyImg from './guy.png';
 import ProjectCard from './components/ProjectCard';
 
 function App() {
@@ -46,8 +36,71 @@ function App() {
   ]);
   const [inputText, setInputText] = useState('');
   const [placeholder, setPlaceholder] = useState('');
-  const [showAutoArrow, setShowAutoArrow] = useState(false);
   
+  // Smooth Scroll Initialization (Lenis)
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2, // Back to standard for better responsiveness
+      lerp: 0.1,    // Higher lerp for more "snappy" feel
+      wheelMultiplier: 1,
+      smoothWheel: true,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
+  // Haptic Feedback for Stacked Cards (Mobile/Chrome)
+  useEffect(() => {
+    if (!('vibrate' in navigator)) return;
+
+    // Interaction "Unlocker" - Browsers require one tap to allow vibrations
+    const unlockHaptics = () => {
+      navigator.vibrate(1); // Tiny invisible vibration to unlock the API
+      window.removeEventListener('touchstart', unlockHaptics);
+      window.removeEventListener('mousedown', unlockHaptics);
+    };
+    window.addEventListener('touchstart', unlockHaptics);
+    window.addEventListener('mousedown', unlockHaptics);
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -75% 0px', // Adjusted threshold for better timing
+      threshold: 0
+    };
+
+    const handleIntersect = (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navigator.vibrate(10);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersect, observerOptions);
+    
+    // We use a small timeout to ensure the cards are fully rendered in the DOM
+    const timer = setTimeout(() => {
+      const cards = document.querySelectorAll('.project-card');
+      cards.forEach(card => observer.observe(card));
+    }, 1000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+      window.removeEventListener('touchstart', unlockHaptics);
+      window.removeEventListener('mousedown', unlockHaptics);
+    };
+  }, []);
+
   // Rotating Placeholder Logic
   useEffect(() => {
     const messages = [
@@ -76,12 +129,8 @@ function App() {
       }
 
       if (!isDeleting && charIndex === currentMessage.length) {
-        // Show arrow for 2 seconds when message is complete
-        setShowAutoArrow(true);
-        setTimeout(() => setShowAutoArrow(false), 2000);
-        
         isDeleting = true;
-        typingSpeed = 3000; // Increased pause to account for 2s arrow + extra beat
+        typingSpeed = 2000;
       } else if (isDeleting && charIndex === 0) {
         isDeleting = false;
         let nextIndex;
@@ -101,9 +150,23 @@ function App() {
   
   const projects = [
     {
-      title: "Pulse Chat — Premium Real-time Experience",
-      description: "A high-performance, real-time messaging application designed with a 'Quiet Luxury' aesthetic. Powered by Socket.io and custom Zustand persistence.",
-      features: ["Sub-millisecond delivery latency", "Offline-first persistence", "Framer Motion transitions", "Sarvam AI & OpenRouter integration (soon)"],
+      title: "PrepMe — AI Technical Interviewer",
+      description: "A premium MERN platform that uses Gemini AI to conduct context-aware technical interviews and provide real-time performance analytics.",
+      features: ["AI Resume Parsing", "Real-time Interview Simulations", "In-depth Performance Analytics", "Session Persistence"],
+      techStack: [
+        { name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+        { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" },
+        { name: "MongoDB", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" },
+        { name: "Google Gemini", icon: "https://cdn.simpleicons.org/googlegemini" }
+      ],
+      liveUrl: "https://prep-me-mu.vercel.app/",
+      githubUrl: "https://github.com/Mayank332k/PrepMe",
+      featured: true
+    },
+    {
+      title: "Pulse Chat — Real-time Experience",
+      description: "A high-performance, real-time messaging application. Powered by Socket.io and custom Zustand persistence.",
+      features: ["Sub-millisecond delivery", "Offline-first persistence", "Framer Motion transitions", "AI Integration"],
       techStack: [
         { name: "React 19", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
         { name: "Socket.io", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/socketio/socketio-original.svg" },
@@ -117,7 +180,7 @@ function App() {
     {
       title: "SaidIt - Reddit Clone",
       description: "A minimal Reddit-style discussion platform with secure session management and a real-time public feed.",
-      features: ["Session-based Authentication", "Public Feed & Likes", "MVC Architecture", "Protected Routes"],
+      features: ["Session-based Auth", "Public Feed & Likes", "MVC Architecture"],
       techStack: [
         { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" },
         { name: "Express", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg" },
@@ -130,42 +193,27 @@ function App() {
     {
       title: "TaskFlow (React Basics)",
       description: "A task management app focused on clean state management and predictable UI behavior.",
-      features: ["Context API & useReducer", "Immutable State Updates", "CRUD Operations", "Custom UI Design"],
+      features: ["Context API", "Immutable Updates", "CRUD Operations"],
       techStack: [
         { name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
         { name: "Vite", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" },
-        { name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
-        { name: "CSS", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" }
+        { name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" }
       ],
       liveUrl: "https://mayank332k.github.io/TaskFlow/",
       githubUrl: "https://github.com/Mayank332k/TaskFlow"
-    },
-    {
-      title: "Full-Stack Task Manager",
-      description: "A production-ready system with secure REST APIs and advanced task management features.",
-      features: ["JWT Authentication", "Searching & Filtering", "Paginated Task View", "Vercel & Render Deployment"],
-      techStack: [
-        { name: "MongoDB", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" },
-        { name: "Express", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg" },
-        { name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
-        { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" }
-      ],
-      liveUrl: "https://task-manager-frontend.vercel.app/",
-      githubUrl: "https://github.com/Mayank332k/Task_Manager_frountend"
     }
   ];
+
   const [isStreaming, setIsStreaming] = useState(false);
   const readerRef = useRef(null);
   const chatMessagesRef = useRef(null);
 
-  // Auto-scroll to latest message
   useEffect(() => {
     if (chatMessagesRef.current) {
       chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Handle Theme
   useEffect(() => {
     document.body.className = theme === 'dark' ? 'dark-theme' : '';
     localStorage.setItem('theme', theme);
@@ -183,51 +231,30 @@ function App() {
     setIsStreaming(false);
   };
 
-  const suggestions = [
-    "Tell me about Mayank",
-    "What projects has he built?",
-    "What is his tech stack?",
-    "How can I hire him?"
-  ];
-
   const handleSendMessage = async (e, overrideText = null) => {
     if (e) e.preventDefault();
-    if (isStreaming) return; // Block sending while AI is responding
+    if (isStreaming) return;
     
-    // Use the overrideText (from pill or placeholder click) or the normal input text
     const textToSend = overrideText || inputText;
-    
     if (!textToSend.trim()) return;
 
-    // Reset auto-arrow immediately on send
-    setShowAutoArrow(false);
+    // Haptic feedback on interaction
+    if ('vibrate' in navigator) navigator.vibrate(10);
 
-    // Add user message to UI
     const newMessages = [...messages, { role: 'user', text: textToSend }];
     setMessages(newMessages);
     setInputText('');
     setIsStreaming(true);
-
-    // Add a placeholder AI message that will receive the stream
     setMessages((prev) => [...prev, { role: 'ai', text: "" }]);
 
     try {
       const response = await fetch('https://portfolio-backend-z3ey.onrender.com/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: textToSend })
       });
 
-      if (!response.ok) {
-        const errorMsg = response.status === 500 
-          ? "I think system API limit hit's. We r using free api's for now. Kindly try after a while." 
-          : "Oops, I'm having trouble connecting to my brain right now.";
-        throw new Error(errorMsg);
-      }
-
-      if (!response.body) throw new Error('ReadableStream not yet supported in this browser.');
+      if (!response.ok) throw new Error("Connection failed");
 
       const reader = response.body.getReader();
       readerRef.current = reader;
@@ -237,27 +264,15 @@ function App() {
 
       while (!isStreamComplete) {
         const { value, done } = await reader.read();
-        
-        if (done) {
-          isStreamComplete = true;
-          break;
-        }
-
+        if (done) { isStreamComplete = true; break; }
         if (value) {
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
-          // Important: Keep the last partial line in the buffer
           buffer = lines.pop(); 
-          
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const dataStr = line.replace('data: ', '').trim();
-              
-              if (dataStr === '[DONE]') {
-                isStreamComplete = true;
-                break;
-              }
-              
+              if (dataStr === '[DONE]') { isStreamComplete = true; break; }
               if (dataStr) {
                 try {
                   const data = JSON.parse(dataStr);
@@ -265,35 +280,24 @@ function App() {
                     const nextMessages = [...prev];
                     const lastIndex = nextMessages.length - 1;
                     const lastMsg = { ...nextMessages[lastIndex] };
-                    
                     if (lastMsg.role === 'ai') {
                       lastMsg.text += (data.content || "");
                       nextMessages[lastIndex] = lastMsg;
                     }
                     return nextMessages;
                   });
-                } catch (err) {
-                  // Wait for more data if parsing fails (fallback safety)
-                  console.error("Error parsing SSE JSON:", err);
-                }
+                } catch (err) { console.error(err); }
               }
             }
           }
         }
       }
     } catch (error) {
-      console.error("Chat Error:", error);
+      console.error(error);
       setMessages((prev) => {
-        const nextMessages = [...prev];
-        const lastIndex = nextMessages.length - 1;
-        const lastMsg = { ...nextMessages[lastIndex] };
-        
-        if (lastMsg.role === 'ai' && !lastMsg.text) {
-          lastMsg.role = 'system';
-          lastMsg.text = error.message.replace(/Error: /g, '') || "Oops, I'm having trouble connecting to my brain right now.";
-          nextMessages[lastIndex] = lastMsg;
-        }
-        return nextMessages;
+        const next = [...prev];
+        next[next.length - 1] = { role: 'system', text: "Error connecting to brain." };
+        return next;
       });
     } finally {
       readerRef.current = null;
@@ -303,272 +307,201 @@ function App() {
 
   return (
     <div className="app-container">
-      
-      {/* Top Navbar from Sketch */}
-      <nav className={`navbar-container ${isChatOpen ? 'chat-active' : ''}`}>
-        <div className="nav-content">
-          <div className="nav-section nav-main-pill">
-            <div className="nav-links desktop-only">
-              <a href="#about">about</a>
-              <a href="#projects">project</a>
-              <a href="#education">education</a>
-              <a href="#tools">tools</a>
-              <a href="#contact">contact</a>
-            </div>
-            
-            {/* Theme Toggle Button - Tablet & Desktop */}
-            <div className="desktop-only">
-              <button className="btn-theme-toggle" onClick={toggleTheme} aria-label="Toggle Theme">
-                {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-              </button>
-            </div>
+      {/* Background Floating Shapes */}
+      <div className="bg-shape shape-1"><Circle size={100} fill="currentColor" /></div>
+      <div className="bg-shape shape-2"><Triangle size={120} fill="currentColor" /></div>
+      <div className="bg-shape shape-3"><Zap size={80} fill="currentColor" /></div>
 
-            {/* Mobile menu Toggle */}
-            <button 
-              className="btn-mobile-menu mobile-only"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      <nav className="navbar-container">
+        <div className="nav-content">
+          <div className="logo" style={{ fontSize: '1.2rem', fontWeight: 900 }}>MAYANK.DEV</div>
+          <div className="nav-links">
+            <a href="#about">About</a>
+            <a href="#projects">Projects</a>
+            <a href="#tools">Tools</a>
+            <a href="#contact">Contact</a>
+            <button onClick={toggleTheme} style={{ background: 'none', border: 'none', cursor: 'pointer', verticalAlign: 'middle', color: '#fff' }}>
+              {theme === 'light' ? <Moon size={24} /> : <Sun size={24} />}
             </button>
           </div>
-
-          {!isChatOpen && (
-            <div className="nav-section nav-chat-pill">
-              {/* Premium Animated Textarea Trigger */}
-              <form 
-                className="nav-chat-form-wrapper"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const textToSend = inputText.trim() || (showAutoArrow ? placeholder : '');
-                  if (!textToSend) return;
-                  
-                  setIsChatOpen(true);
-                  handleSendMessage(e, textToSend);
-                }}
-              >
-                <div className="textarea-glow-container">
-                  <input
-                    type="text"
-                    className="nav-chat-textarea"
-                    placeholder={placeholder}
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (inputText.trim()) {
-                          setIsChatOpen(true);
-                          handleSendMessage(e);
-                        }
-                      }
-                    }}
-                  />
-                  {(inputText.trim() || showAutoArrow) && (
-                    <button type="submit" className="nav-chat-submit-btn">
-                      <Send size={18} />
-                    </button>
-                  )}
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Frosted Dropdown for Mobile */}
-          {isMobileMenuOpen && (
-            <div className="mobile-dropdown-menu">
-              <a href="#about" onClick={() => setIsMobileMenuOpen(false)}>about</a>
-              <a href="#projects" onClick={() => setIsMobileMenuOpen(false)}>project</a>
-              <a href="#education" onClick={() => setIsMobileMenuOpen(false)}>education</a>
-              <a href="#tools" onClick={() => setIsMobileMenuOpen(false)}>tools</a>
-              <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>contact</a>
-              
-              {/* Mobile Theme Toggle Section */}
-              <div className="mobile-dropdown-theme-section">
-                <span>Theme</span>
-                <button className="btn-mobile-theme-toggle" onClick={toggleTheme}>
-                  {theme === 'light' ? (
-                    <><Moon size={18} /><span>Dark Mode</span></>
-                  ) : (
-                    <><Sun size={18} /><span>Light Mode</span></>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
+          <button className="mobile-only" onClick={() => setIsMobileMenuOpen(true)} style={{ background: 'none', border: 'none', color: '#fff' }}>
+            <Menu size={28} />
+          </button>
         </div>
       </nav>
 
-      {/* Global Scroll Lane: The Connecting Pipe */}
-      <div className="global-timeline-lane">
-        <div className="global-line"></div>
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu-overlay">
+          <button className="close-menu" onClick={() => setIsMobileMenuOpen(false)}>
+            <X size={32} />
+          </button>
+          <div className="mobile-nav-links">
+            <a href="#about" onClick={() => setIsMobileMenuOpen(false)}>About</a>
+            <a href="#projects" onClick={() => setIsMobileMenuOpen(false)}>Projects</a>
+            <a href="#tools" onClick={() => setIsMobileMenuOpen(false)}>Tools</a>
+            <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</a>
+            <button onClick={() => { toggleTheme(); setIsMobileMenuOpen(false); }} className="btn-outline" style={{ background: 'var(--primary)', marginTop: '1rem' }}>
+              {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+            </button>
+          </div>
+        </div>
+      )}
 
-        {/* Main Grid: 2 Columns */}
       <main id="about" className="content-grid">
-        
-        {/* Left Column: Text & Actions */}
         <section className="left-column">
           <h1 className="hero-title">
-            Hi, I'm Mayank Singh. <span style={{ color: 'var(--primary)' }}>Full-Stack Developer</span>
+            I DESIGN & <br/> <span style={{ color: 'var(--primary)' }}>BUILD FOR GROWTH.</span>
           </h1>
           <p className="hero-subtitle">
-            A full-stack developer in progress, building responsive and scalable web applications using modern technologies like React and currently learning backend with Node.js. Focused on writing clean code and solving real-world problems.
+            Full-stack developer building high-impact web applications. Currently scaling my skills with React, Node.js, and AI integrations.
           </p>
 
           <div className="hero-actions">
-            <a 
-              href="/latest_Resume.pdf" 
-              download="Mayank_Singh_Resume.pdf"
-              className="btn-outline"
-            >
-              <Download size={16} />
-              Download Resume
+            <a href="/resume2_0.pdf" download className="btn-outline">
+              <Download size={20} />
+              Resume
             </a>
-            <div className="social-links">
-              <a href="https://github.com/Mayank332k" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="GitHub">
-                <Github size={20} />
-              </a>
-              <a href="https://www.linkedin.com/in/mayank-singh-813b68373/" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="LinkedIn">
-                <Linkedin size={20} />
-              </a>
-              <a href="https://www.instagram.com/_mayvnk.ug?igsh=ZTIwa3VjdDJkZTY4" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Instagram">
-                <Instagram size={20} />
-              </a>
-              <a href="mailto:singhmayank4146@gmail.com" className="social-icon" aria-label="Email">
-                <Mail size={20} />
-              </a>
+            <div className="social-links" style={{ display: 'flex', gap: '1rem' }}>
+              <a href="https://github.com/Mayank332k" target="_blank" rel="noopener noreferrer" className="social-icon"><Github size={24} /></a>
+              <a href="https://www.linkedin.com/in/mayank-singh-813b68373/" target="_blank" rel="noopener noreferrer" className="social-icon"><Linkedin size={24} /></a>
+              <a href="https://www.instagram.com/_mayvnk.ug?igsh=ZTIwa3VjdDJkZTY4" target="_blank" rel="noopener noreferrer" className="social-icon"><Instagram size={24} /></a>
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=singhmayank4146@gmail.com" target="_blank" rel="noopener noreferrer" className="social-icon"><Mail size={24} /></a>
             </div>
           </div>
         </section>
 
-        {/* Right Column: Illustration OR Chat Widget */}
         <section className="right-column">
-          
-          {/* Default State: The 3D Avatar/Illustration */}
-          <div className={`view-container illustration-view ${isChatOpen ? 'hidden' : 'visible'}`}>
-             <img 
-               src={guyImg} 
-               alt="Character Illustration" 
-               className="floating-guy-image"
-             />
-          </div>
-
-          {/* Active State: The AI Chat Box */}
-          <div className={`view-container chat-view ${isChatOpen ? 'visible' : 'hidden'}`}>
-            <div className="chat-widget">
-              <div className="chat-header">
+          <div className="chat-card-container">
+            {!isChatOpen ? (
+              /* AI Intro Card State */
+              <div className="project-card" style={{ padding: '2.5rem', textAlign: 'center', background: 'var(--card-bg)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ 
+                  width: '80px', 
+                  height: '80px', 
+                  background: 'var(--accent)', 
+                  border: 'var(--border-thick)', 
+                  borderRadius: '50%', 
+                  margin: '0 auto 1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '4px 4px 0px #000'
+                }}>
+                  <Sparkles size={40} />
+                </div>
+                <h3 style={{ marginBottom: '1.5rem' }}>Mayank AI</h3>
+                <p style={{ marginBottom: '2rem', fontWeight: 700, fontSize: '0.9rem', color: '#666' }}>
+                  Ask me about Mayank's experience, skills, or even just to crack a dev joke. I'm always here.
+                </p>
                 <button 
-                  className="btn-back" 
-                  onClick={() => setIsChatOpen(false)}
-                  aria-label="Close Chat"
+                  className="btn-outline" 
+                  style={{ width: '100%', background: 'var(--secondary)' }}
+                  onClick={() => setIsChatOpen(true)}
                 >
-                  <ArrowLeft size={20} />
-                  <span>Back</span>
+                  <MessageSquare size={20} />
+                  Start Chatting
                 </button>
-                <div className="header-agent-info">
-                  <div className="avatar">
-                     <img 
-                       src="https://api.dicebear.com/7.x/avataaars/svg?seed=MayankAI&backgroundColor=F05A28" 
-                       alt="AI Avatar" 
-                       style={{ borderRadius: '50%', width: '100%', height: '100%' }}
-                     />
-                  </div>
-                  <div className="header-info">
-                    <h3>Mayank AI</h3>
+              </div>
+            ) : (
+              /* Active Chat Bot State */
+              <div className="chat-view">
+                <div className="chat-header">
+                  <button className="btn-back" onClick={() => setIsChatOpen(false)}>
+                    <ArrowLeft size={20} />
+                    Back
+                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '8px', height: '8px', background: '#00ff00', borderRadius: '50%' }}></div>
+                    <span style={{ fontWeight: 900, textTransform: 'uppercase', fontSize: '0.8rem' }}>Live Assistant</span>
                   </div>
                 </div>
-              </div>
-              
-              <div className="chat-messages" ref={chatMessagesRef}>
-                {messages.map((msg, index) => (
-                  <div 
-                    key={index} 
-                    className={`message ${msg.role} 
-                      ${msg.role === 'ai' && msg.text === "" && isStreaming && index === messages.length - 1 ? 'is-thinking' : ''}
-                      ${msg.role === 'ai' && msg.text !== "" && isStreaming && index === messages.length - 1 ? 'is-streaming' : ''}
-                    `}
-                  >
-                    {msg.role === 'ai' && msg.text === "" ? (
-                      <div className="dots-wave">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    ) : (
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" />
-                        }}
-                      >
-                        {msg.text}
-                      </ReactMarkdown>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Sugestion Pills - Only show at the start */}
-              {messages.length === 1 && (
-                <div className="chat-suggestions">
-                  {suggestions.map((suggestion, idx) => (
-                    <button 
-                      key={idx} 
-                      className="suggestion-pill"
-                      onClick={() => handleSendMessage(null, suggestion)}
-                    >
-                      {suggestion}
-                    </button>
+                
+                <div className="chat-messages" ref={chatMessagesRef}>
+                  
+                  {messages.map((msg, index) => (
+                    <div key={index} className={`message ${msg.role}`}>
+                      {msg.role === 'ai' && msg.text === "" && isStreaming && index === messages.length - 1 ? (
+                        <div className="typing-dots">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      ) : (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.text}
+                        </ReactMarkdown>
+                      )}
+                    </div>
                   ))}
-                </div>
-              )}
 
-              {/* Input Area */}
-              <div className="chat-input-wrapper">
-                <div className="textarea-glow-container chat-glow-pill">
-                  <form onSubmit={(e) => handleSendMessage(e)} className="chat-input-form">
+                  {/* Only show quick actions if there are no user messages yet (only the welcome message) */}
+                  {messages.length === 1 && !isStreaming && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1rem', padding: '0 0.5rem', marginBottom: '1.5rem' }}>
+                      {[
+                        "What projects have you worked on?",
+                        "What is your tech stack?",
+                        "Are you available for hire?",
+                        "Tell me a dev joke!"
+                      ].map((q, i) => (
+                        <button 
+                          key={i} 
+                          onClick={() => {
+                            setInputText(q);
+                            const fakeEvent = { preventDefault: () => {} };
+                            handleSendMessage(fakeEvent, q);
+                          }}
+                          className="btn-outline"
+                          style={{ 
+                            padding: '0.6rem 1rem', 
+                            fontSize: '0.8rem', 
+                            background: 'var(--bg-color)', 
+                            boxShadow: '3px 3px 0px #000',
+                            textTransform: 'none',
+                            fontWeight: 700
+                          }}
+                        >
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="chat-input-wrapper">
+                  <form className="chat-input-form" onSubmit={handleSendMessage}>
                     <input 
                       type="text" 
-                      placeholder={isStreaming ? "AI is typing..." : "Message Mayank AI..."}
+                      placeholder={placeholder} 
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
-                      disabled={isStreaming}
                     />
-                    
-                    {isStreaming ? (
-                      <button 
-                        type="button" 
-                        className="btn-send-message btn-stop" 
-                        aria-label="Stop Message"
-                        onClick={stopStreaming}
-                      >
-                        <Square size={20} fill="currentColor" className="custom-send-icon" />
-                      </button>
-                    ) : (
-                      <button 
-                        type="submit" 
-                        className="btn-send-message" 
-                        aria-label="Send Message"
-                      >
-                        {/* Minimalist Geometric Paper Airplane mimicking user's icon */}
-                        <svg className="custom-send-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M22 12L3 2L6.5 11.5L16 12L6.5 12.5L3 22L22 12Z" />
-                        </svg>
-                      </button>
-                    )}
+                    <button type="submit" className="btn-send-message">
+                      <Send size={20} />
+                    </button>
                   </form>
                 </div>
               </div>
-            </div>
+            )}
           </div>
-
         </section>
       </main>
 
-      {/* Projects Section Placeholder */}
-      <section id="projects" className="section-container projects-section">
-        <div className="section-marker">
-          <div className="diamond-shape"></div>
+      {/* Infinite Marquee Section */}
+      <div className="marquee-container">
+        <div className="marquee-content">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="marquee-text">
+              CRAFTING DIGITAL EXPERIENCES <Sparkles size={24} fill="#000" />
+              BUILDING SCALABLE SOLUTIONS <Zap size={24} fill="#000" />
+              AI-POWERED INNOVATION <Brain size={24} />
+              PIXEL PERFECT DESIGN <Zap size={24} fill="#000" />
+            </div>
+          ))}
         </div>
+      </div>
+
+      <section id="projects" className="section-container">
         <h2 className="section-title">Projects</h2>
         <div className="projects-grid">
           {projects.map((project, index) => (
@@ -577,187 +510,46 @@ function App() {
         </div>
       </section>
 
-      {/* Education Section */}
-      <section id="education" className="section-container education-section">
-        <div className="section-marker">
-          <div className="diamond-shape"></div>
-        </div>
-        <h2 className="section-title">Education</h2>
-          
-          <div className="timeline-container">
-            <div className="timeline-line"></div>
-            
-            {/* Degree 1 */}
-            <div className="timeline-item">
-              <div className="timeline-dot">
-                <div className="diamond-shape"></div>
+      <section id="tools" className="section-container">
+        <h2 className="section-title">Tech Stack</h2>
+        <div className="project-card" style={{ padding: '3rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', justifyContent: 'center' }}>
+            {["React", "Node.js", "MongoDB", "JavaScript", "Express", "Vite", "Git", "Tailwind"].map((tool) => (
+              <div key={tool} className="btn-outline" style={{ background: 'var(--bg-color)', cursor: 'default' }}>
+                {tool}
               </div>
-              <div className="timeline-content">
-                <div className="edu-header">
-                  <h3>Bachelor of Science in Computer Science</h3>
-                  <span className="edu-date">2024 – 2027</span>
-                </div>
-                <p className="edu-college">Jnan Vikas Mandal's Mohanlal Raichand Mehta Degree College</p>
-                <ul className="edu-details">
-                  <li>Currently in Second Year (SYCS)</li>
-                  <li>CGPA: 7.9 (till now)</li>
-                  <li>Focused on core subjects like Data Structures, Programming, and Database concepts</li>
-                  <li>Actively building backend development skills using Node.js and MongoDB</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* If there were more, they would go here following the diamond skeleton structure */}
+            ))}
           </div>
+        </div>
       </section>
 
-      {/* Tools & Tech Section */}
-      <section id="tools" className="section-container tools-section">
-        <div className="section-marker">
-          <div className="diamond-shape"></div>
-        </div>
-        <h2 className="section-title">Tools & Technologies</h2>
-          
-          <div className="tools-grid">
-            {/* Category: Languages */}
-            <div className="tool-category">
-              <h3>Languages</h3>
-              <div className="skill-chips">
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" alt="JS" />
-                  JavaScript
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" alt="Java" />
-                  Java
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" alt="HTML" />
-                  HTML
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" alt="CSS" />
-                  CSS
-                </div>
-              </div>
-            </div>
-
-            {/* Category: Frontend */}
-            <div className="tool-category">
-              <h3>Frontend & Frameworks</h3>
-              <div className="skill-chips">
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" alt="React" />
-                  React.js
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg" alt="Vite" />
-                  Vite
-                </div>
-              </div>
-            </div>
-
-            {/* Category: AI Tools */}
-            <div className="tool-category">
-              <h3>AI Tools</h3>
-              <div className="skill-chips">
-                <div className="skill-chip">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT" />
-                  ChatGPT
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.simpleicons.org/anthropic" alt="Claude" />
-                  Claude
-                </div>
-                <div className="skill-chip">
-                  <div className="ai-icon-circle" style={{ backgroundColor: '#000' }}>
-                    <Cpu size={14} color="#fff" />
-                  </div>
-                  Kimi K2
-                </div>
-                <div className="skill-chip">
-                  <div className="ai-icon-circle" style={{ backgroundColor: '#5A67D8' }}>
-                    <Sparkles size={14} color="#fff" />
-                  </div>
-                  Stitch MCP
-                </div>
-                <div className="skill-chip">
-                  <div className="ai-icon-circle antigravity-icon">
-                    <Zap size={14} color="#fff" />
-                  </div>
-                  Antigravity
-                </div>
-              </div>
-            </div>
-
-            {/* Category: Tools & Technologies */}
-            <div className="tool-category">
-              <h3>Backend & Platform</h3>
-              <div className="skill-chips">
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" alt="MERN" />
-                  MERN Stack
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" alt="Node" />
-                  Node.js
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/express/express-original.svg" alt="Express" className="invert-icon" />
-                  Express.js
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg" alt="MongoDB" />
-                  MongoDB
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongoose/mongoose-original.svg" alt="Mongoose" />
-                  Mongoose
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" alt="VSCode" />
-                  VS Code
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" alt="Git" />
-                  Git
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="GitHub" className="invert-icon" />
-                  GitHub
-                </div>
-                <div className="skill-chip">
-                  <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="Postman" />
-                  Postman
-                </div>
-                <div className="skill-chip">
-                  <img src="https://cdn.simpleicons.org/render" alt="Render" />
-                  Render
-                </div>
-              </div>
-            </div>
-          </div>
-      </section>
-
-
-
-      {/* Contact Section */}
-      <section id="contact" className="section-container contact-section">
-        <div className="section-marker">
-          <div className="diamond-shape"></div>
-        </div>
+      <section id="contact" className="section-container" style={{ textAlign: 'center' }}>
         <h2 className="section-title">Get In Touch</h2>
-        <div className="contact-card">
-          <p>I'm currently looking for new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
-          <a href="mailto:singhmayank4146@gmail.com" className="email-link">
+        <div className="project-card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <p style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '2rem' }}>
+            Looking for new opportunities or just want to say hi?
+          </p>
+          <a 
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=singhmayank4146@gmail.com" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="btn-outline" 
+            style={{ background: 'var(--primary)', color: '#000', marginBottom: '2rem' }}
+          >
             <Mail size={24} />
-            <span>singhmayank4146@gmail.com</span>
+            Email Me
           </a>
+          <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginTop: '1rem' }}>
+            <a href="https://github.com/Mayank332k" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-dark)' }}><Github size={28} /></a>
+            <a href="https://www.linkedin.com/in/mayank-singh-813b68373/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-dark)' }}><Linkedin size={28} /></a>
+            <a href="https://www.instagram.com/_mayvnk.ug?igsh=ZTIwa3VjdDJkZTY4" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-dark)' }}><Instagram size={28} /></a>
+          </div>
         </div>
       </section>
-      </div> {/* End global-timeline-lane */}
 
-
+      <footer style={{ padding: '4rem 0', textAlign: 'center', fontWeight: 900, textTransform: 'uppercase' }}>
+        © 2026 Mayank Singh // Built for Growth
+      </footer>
     </div>
   );
 }
