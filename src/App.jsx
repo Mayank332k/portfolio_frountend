@@ -418,7 +418,7 @@ function App() {
                   </div>
                 </div>
                 
-                <div className="chat-messages" ref={chatMessagesRef}>
+                <div className="chat-messages" ref={chatMessagesRef} data-lenis-prevent>
                   
                   {messages.map((msg, index) => (
                     <div key={index} className={`message ${msg.role}`}>

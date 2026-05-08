@@ -205,6 +205,7 @@ h1, h2, h3 {
   box-shadow: var(--shadow-hard);
   border-radius: 20px;
   height: 600px;
+  max-height: 85vh; /* Ensure it fits on smaller screens */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -236,9 +237,28 @@ h1, h2, h3 {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  min-height: 0; /* Essential flex fix for nested scrolling */
   background-image: radial-gradient(var(--text-dark) 1px, transparent 1px);
   background-size: 20px 20px;
   background-color: var(--bg-color);
+  overscroll-behavior: contain;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 .message {
