@@ -26,6 +26,7 @@ import './index.css';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ProjectCard from './components/ProjectCard';
+import { GitHubCalendar } from 'react-github-calendar';
 
 function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -507,6 +508,43 @@ function App() {
           {projects.map((project, index) => (
             <ProjectCard key={index} {...project} />
           ))}
+        </div>
+      </section>
+
+      <section id="consistency" className="section-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <h2 className="section-title">Consistency</h2>
+        <div className="project-card" style={{ 
+          padding: '2.5rem', 
+          width: 'fit-content', 
+          maxWidth: '100%',
+          margin: '0 auto',
+          background: 'var(--card-bg)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <GitHubCalendar 
+              username="Mayank332k" 
+              blockSize={16}
+              blockMargin={6}
+              fontSize={14}
+              hideTotalCount
+              transformData={(data) => data.slice(-90)}
+              theme={{
+                light: ['#ebedf0', 'var(--primary)', 'var(--primary)', 'var(--primary)', 'var(--primary)'],
+                dark: ['#333', 'var(--primary)', 'var(--primary)', 'var(--primary)', 'var(--primary)'],
+              }}
+              style={{
+                color: 'var(--text-dark)',
+              }}
+            />
+          </div>
+          <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            Recent Activity (90 Days)
+          </div>
         </div>
       </section>
 

@@ -1,9 +1,20 @@
 import React from 'react';
 import { ExternalLink, Github } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const ProjectCard = ({ title, description, features = [], techStack = [], liveUrl, githubUrl, featured }) => {
   return (
-    <div className={`project-card ${featured ? 'featured' : ''}`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 100, rotateX: 20, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+      viewport={{ once: false, amount: 0.2 }}
+      transition={{ 
+        duration: 0.8, 
+        ease: [0.22, 1, 0.36, 1] 
+      }}
+      className={`project-card ${featured ? 'featured' : ''}`}
+      style={{ perspective: '1000px' }}
+    >
       <div className="project-card-header" style={{ marginBottom: '1.5rem' }}>
         <h3 className="project-title-text" style={{ fontSize: '1.5rem', textTransform: 'uppercase' }}>{title}</h3>
       </div>
@@ -48,7 +59,7 @@ const ProjectCard = ({ title, description, features = [], techStack = [], liveUr
           </a>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
